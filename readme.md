@@ -2,6 +2,11 @@
 
 The `summarize.py` script is a Python program designed to generate concise summaries of textual transcripts using a lightweight Hugging Face NLP model. It processes transcript files stored in a directory, summarizes their content, and outputs the summaries in a CSV file for easy access and analysis.
 
+The `summarize_twostep.py` script introduces a hierarchical summarization approach to handle large transcripts more effectively. This method processes transcripts in two steps to generate a more concise and cohesive summary.
+
+**When to Use:**
+Use `summarize.py` for shorter transcripts or when you need a quick summary.
+Use `summarize_twostep.py` for longer transcripts (e.g., 30,000+ words) to ensure better summarization quality.
 ---
 
 ## Features
