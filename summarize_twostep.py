@@ -4,6 +4,7 @@
 
 import os
 import pandas as pd
+import time
 # import transformers to use the standard summarizer
 from transformers import pipeline, AutoTokenizer
 
@@ -50,18 +51,28 @@ def pull_transcripts(path):
             with open(os.path.join(path, filename), 'r', encoding='utf-8') as file:
                 transcript = file.read()
                 company_name = filename.split('.')[0]  # Assuming the filename is the company name
+                
+                start_time = time.time()
                 print("Send Transcript")
                 summary = summarize_transcript(transcript)
-    
+                # Calculate the time taken to summarize
+                end_time = time.time()
+                time_taken = end_time - start_time
+                hours, remainder = divmod(time_taken, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                time_taken_str = f"{int(hours)}H:{int(minutes)}M:{int(seconds)}S"
+
                 # Append the company name and summary to the DataFrame using pd.concat
-                new_row = pd.DataFrame({'company_name': [company_name], 'summary': [summary]})
+                new_row = pd.DataFrame({'company_name': [company_name], 
+                                        'summary': [summary],
+                                        'time': [time_taken_str]})
                 df_summaries = pd.concat([df_summaries, new_row], ignore_index=True)
 
     # Create Results Folder if it doesnt' exist
-    if not os.path.exists('/Results'):
-        os.makedirs('/Results')
+    if not os.path.exists('Results'):
+        os.makedirs('Results')
     # Save the summaries to the Results directory
-    df_summaries.to_csv(os.path.join(results_dir, '2step_transcript_summaries.csv'), index=False)
+    df_summaries.to_csv(os.path.join("Results", '2step_transcript_summaries.csv'), index=False)
 
 if __name__ == "__main__":
     # Specify the path to the directory containing the transcript files
