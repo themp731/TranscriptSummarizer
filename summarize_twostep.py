@@ -11,10 +11,8 @@ from transformers import pipeline, AutoTokenizer
 
 def summarize_transcript(transcript):
     # Load the lightweight summarization model
-    # require Tensor FLow weights since the model is not available in PyTorch
     print("Loading summarization model...")
     summarizer = pipeline("summarization", model="t5-small", device=-1)  # Use device=0 for GPU, or -1 for CPU
-    # Using tokenizer to build chuncks of 256 size for better T5 performance
     tokenizer = AutoTokenizer.from_pretrained("t5-small")
 
     # Split the transcript into smaller chunks
@@ -23,20 +21,21 @@ def summarize_transcript(transcript):
     chunks = [tokens[i:i + max_chunk_size] for i in range(0, len(tokens), max_chunk_size)]
 
     # Summarize each chunk
-    print("Generating summary...")
+    print("Generating intermediate summaries...")
     intermediate_summary = []
     len_chunks = len(chunks)
     for chunk in chunks:
         print(f"Processing chunk {len(intermediate_summary) + 1} of {len_chunks}")
-        # Decode the chunk back to text
         chunk_text = tokenizer.decode(chunk, skip_special_tokens=True)
-        summary = summarizer(chunk_text, max_length=20, min_length=10, do_sample=False)
+        summary = summarizer(chunk_text, max_length=70, min_length=30, do_sample=False)
         intermediate_summary.append(summary[0]['summary_text'])
-    
-    # Take the combined summary and summarize it again
-    # NOTE: This could cause an issue if the intermediate step has more than 512 tokens
-    str_intermediate_summary = " ".join(intermediate_summary)
-    combined_tokens = tokenizer.encode(str_intermediate_summary, return_tensors="pt", truncation=False)[0]
+
+    # Combine intermediate summaries into a single string
+    combined_summary = " ".join(intermediate_summary)
+
+    # Split the combined summary into smaller chunks for final summarization
+    print("Generating final summary...")
+    combined_tokens = tokenizer.encode(combined_summary, return_tensors="pt", truncation=False)[0]
     combined_chunks = [combined_tokens[i:i + 512] for i in range(0, len(combined_tokens), 512)]
 
     final_summary_parts = []
@@ -45,9 +44,10 @@ def summarize_transcript(transcript):
         summary = summarizer(chunk_text, max_length=70, min_length=30, do_sample=False)
         final_summary_parts.append(summary[0]['summary_text'])
 
+    # Combine all final summary parts into a single summary
     final_summary = " ".join(final_summary_parts)
-
-    return final_summary[0]['summary_text']
+    print(final_summary)
+    return final_summary
 
 def pull_transcripts(path):
     df_summaries = pd.DataFrame(columns=['company_name', 'summary'])
