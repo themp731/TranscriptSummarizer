@@ -110,7 +110,7 @@ If you encounter issues with large files or memory errors, try splitting the inp
 ## Output Example
 The generated transcript_summaries.csv file will look like this:
 
-company_name	summary
-companyA	"This is a concise summary of the transcript for companyA..."
-companyB	"This is a concise summary of the transcript for companyB..."
-Feel free to copy and paste this into your README file. Let me know if you’d like further adjustments or additions!
+company_name	summary Time
+companyA	"This is a concise summary of the transcript for companyA..."   0H5M21S
+companyB	"This is a concise summary of the transcript for companyB..."   0H4M15S
+
