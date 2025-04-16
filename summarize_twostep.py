@@ -18,7 +18,7 @@ def summarize_transcript(transcript):
     tokenizer = AutoTokenizer.from_pretrained("t5-small")
 
     # Split the transcript into smaller chunks
-    max_chunk_size = 512
+    max_chunk_size = 500  # Adjusted to fit within the T5 model's context window
     tokens = tokenizer.encode(transcript, return_tensors="pt", truncation=False)[0]
     chunks = [tokens[i:i + max_chunk_size] for i in range(0, len(tokens), max_chunk_size)]
 
@@ -35,7 +35,8 @@ def summarize_transcript(transcript):
     
     # Take the combined summary and summarize it again
     # NOTE: This could cause an issue if the intermediate step has more than 512 tokens
-    combined_tokens = tokenizer.encode(intermediate_summary, return_tensors="pt", truncation=False)[0]
+    str_intermediate_summary = " ".join(intermediate_summary)
+    combined_tokens = tokenizer.encode(str_intermediate_summary, return_tensors="pt", truncation=False)[0]
     combined_chunks = [combined_tokens[i:i + 512] for i in range(0, len(combined_tokens), 512)]
 
     final_summary_parts = []
